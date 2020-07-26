@@ -1,18 +1,18 @@
+/// argvhide
+/// insert this into target programs main file
 
-#include <string.h>
-#include <stdio.h>
+
+
 #include <iostream>
 #include <cstdio>
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <iomanip>      // std::setfill, std::setw
+//#include <iomanip>      // std::setfill, std::setw
 #include <vector>
 
-using namespace std;
 
-
-
+#pragma region HACK
 /// https://stackoverflow.com/questions/3381614/c-convert-string-to-hexadecimal-and-vice-versa
 std::string str2hex(const std::string& input)
 {
@@ -100,7 +100,7 @@ std::vector<std::string> split(std::string strToSplit, char delimeter)
     return splittedStrings;
 }
 
-std::string argv2string(int argc, char** argv, int startpos = 0)
+std::string argv2string(int argc, char** argv, int startpos= 0)
 {
     std::stringstream ss;
     for (int i = startpos; i < argc; i++)
@@ -108,90 +108,76 @@ std::string argv2string(int argc, char** argv, int startpos = 0)
         ss << argv[i] << " ";
     }
     std::string res(ss.str());
-    res.erase(res.rfind(' ')); // Trim from ' ' to the end of the string
+    if (!res.empty())
+        res.erase(res.rfind(' ')); // Trim from ' ' to the end of the string
     return res;
 }
 
-//size_t string2argv(const std::string s, char* buf[])
-//{
-//    auto elems = split(s, ' ');
-//    const size_t n = elems.size();
-//    char* arr[n];
-//    for (size_t i = 0; i < n; i++)
-//    {
-//        /// https://www.techiedelight.com/convert-std-string-char-cpp/
-//        arr[i] = const_cast<char*>(elems[i].c_str());
-//    }
-//
-//    return n;
-//}
+#pragma endregion
+
+
+
+
 
 int main(int argc, char** argv)
 {
-    cout << argc << endl;
-    cout << argv2string(argc, argv, 1) << endl;
+	
+	// ...
+    //std::cout << "argc:" << argc << ", argv:" << argv2string(argc, argv) << std::endl;
+	
 
-    if (argc < 3) {
-        cerr << "usage: " << argv[0] << " <[-e|-d|-x] [string|-]>" << endl;
-        return 1;
-    }
+#pragma region HACK
 
-    if (argc >= 3) {
-        const string params = string(argv2string(argc, argv, 2));
-        //cout << params << endl;
-        string line;
-        if (params == "-") {
-            std::getline(std::cin, line);
-        } else {
-            line = params;
-        }
+    // program which should be run if the CLI parameters are not our ciphered ones
+    const std::string distraction_program = "/usr/bin/python3";
 
-        if (string(argv[1]) == "-e") {
-            cout << str2hex(d(line)) << endl;
-        }
-        else if (string(argv[1]) == "-d") {
-            cout << d(hex2str(line)) << endl;
-        }
-        else if (string(argv[1]) == "-x") {
-            
+    std::string s;
+    if (argc == 2 || (argc == 3 && std::string(argv[1]) == "--token")) {
+        try
+        {
+            // argv -> string
             // hex -> encoded -> decoded string
-            const string s = d(hex2str(line));
-            
-            // string -> char*[]
-            const auto elems = split(s, ' ');
-            const size_t argc_new = elems.size() + 1;  // +1 for argv[0]
-            char* argv_new[n];
-            // always add first argv element
-            argv_new[0] = argv[0];
-            for (size_t i = 0; i < argc_new; i++)
-            {
-                /// const_cast: https://www.techiedelight.com/convert-std-string-char-cpp/
-                argv_new[i+1] = const_cast<char*>(elems[i].c_str());
-            }
-
-            // show that
-            cout << argv2string(argc_new, argv_new) << endl;
-
-            // now, what we've done:
-            // 1. encoded parameters with XOR
-            // 2. encoded it as hex
-            // 
-            // 3. decoded hex
-            // 4. decoded XOR
-            // 5. created an own char**/char*[] from that
-            //
-            // This can then be used by e.g., CLI parsers
-
-            // e.g.:
-            // old argc:3, argv:./argvhide -x 224b2562716b2b78683b6b
-            // new argc:5, argv:./argvhide -P foo -v 0
-            cout << "old argc:" << argc << ", argv:" << argv2string(argc, argv) << endl;
-            cout << "argc_new:" << argc_new << ", argv_new:" << argv2string(argc_new, argv_new) << endl;
-
-            // overwrite
-            argc = argc_new;
-            argv = argv_new;
-        }        
+            s = d(hex2str(argv[argc-1]));
+        }
+        catch(const std::exception& e)
+        {
+            //std::cerr << e.what() << std::endl;
+        }
     }
+    if (s.empty()) {
+        return system((distraction_program + " " + argv2string(argc, argv, 1)).c_str());
+    }
+
+    const auto elems = split(s, ' ');
+    const size_t argc_new = elems.size() + 1;  // +1 for argv[0]
+
+    // string -> char*[]
+    char* argv_new[argc_new];
+    argv_new[0] = argv[0];  // always add first argv element
+    for (size_t i = 0; i < argc_new; i++)
+    {
+        /// const_cast: https://www.techiedelight.com/convert-std-string-char-cpp/
+        argv_new[i+1] = const_cast<char*>(elems[i].c_str());
+    }
+
+    std::cout << "old argc:" << argc << ", argv:" << argv2string(argc, argv) << std::endl;
+    std::cout << "argc_new:" << argc_new << ", argv_new:" << argv2string(argc_new, argv_new) << std::endl;
+
+    // now, what we've done:
+    // 1. encoded parameters with XOR
+    // 2. encoded it as hex
+    // 
+    // 3. decoded hex
+    // 4. decoded XOR
+    // 5. created an own char**/char*[] from that
+    //
+    // This can then be used by e.g., CLI parsers    
+
+    // overwrite
+    argc = argc_new;
+    argv = argv_new;
+#pragma endregion
+ 
+ 	// ...
 
 }

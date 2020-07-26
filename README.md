@@ -25,7 +25,8 @@ Instead of:
   `myprogram --param1=secret-value`
 
 I want:
-  `myprogram 223675656c65666423683e9c8d9a8bd2797a69717b`
+  - `myprogram --token 223675656c65666423683e9c8d9a8bd2797a69717b`
+  - or just `myprogram 223675656c65666423683e9c8d9a8bd2797a69717b`
 
 
 ## How To
@@ -35,4 +36,4 @@ I want:
    - the string should be everything you want to have as parameters for the target program
 3. modify target program's source to include the code from [main-snippet.cpp](main-snippet.cpp).
 4. compile target program
-5. run target program with the ciphered string as the only parameter, e.g., `myprog 223675656c65666423683e9c8d9a8bd2797a69717b`
+5. run target program with the ciphered string as the only parameter, e.g., `myprog 223675656c65666423683e9c8d9a8bd2797a69717b` or `myprog --token  223675656c65666423683e9c8d9a8bd2797a69717b`

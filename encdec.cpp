@@ -1,9 +1,18 @@
 
-/// argvhide
-/// insert this into target programs main file
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+#include <cstdio>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <iomanip>      // std::setfill, std::setw
+#include <vector>
+
+using namespace std;
 
 
-#pragma region HACK
+
 /// https://stackoverflow.com/questions/3381614/c-convert-string-to-hexadecimal-and-vice-versa
 std::string str2hex(const std::string& input)
 {
@@ -91,7 +100,7 @@ std::vector<std::string> split(std::string strToSplit, char delimeter)
     return splittedStrings;
 }
 
-std::string argv2string(int argc, char** argv, int startpos= 0)
+std::string argv2string(int argc, char** argv, int startpos = 0)
 {
     std::stringstream ss;
     for (int i = startpos; i < argc; i++)
@@ -99,48 +108,52 @@ std::string argv2string(int argc, char** argv, int startpos= 0)
         ss << argv[i] << " ";
     }
     std::string res(ss.str());
-    res.erase(res.rfind(' ')); // Trim from ' ' to the end of the string
+    if (!res.empty())
+        res.erase(res.rfind(' ')); // Trim from ' ' to the end of the string
     return res;
 }
 
-#pragma endregion
-
-
-
-
+//size_t string2argv(const std::string s, char* buf[])
+//{
+//    auto elems = split(s, ' ');
+//    const size_t n = elems.size();
+//    char* arr[n];
+//    for (size_t i = 0; i < n; i++)
+//    {
+//        /// https://www.techiedelight.com/convert-std-string-char-cpp/
+//        arr[i] = const_cast<char*>(elems[i].c_str());
+//    }
+//
+//    return n;
+//}
 
 int main(int argc, char** argv)
 {
-	
-	// ...
-	
-#pragma region HACK
+    cout << argc << endl;
+    cout << argv2string(argc, argv, 1) << endl;
 
-    std::string distraction_program = "jupyter-notebook";
-
-
-    if (argc == 1) {
-        return system(distraction_program);
+    if (argc < 3) {
+        cerr << "usage: " << argv[0] << " <[-e|-d] [string|-]>" << endl;
+        return 1;
     }
-    if (argc > 2) {
-        return system((string(distraction_program) + " " + argv2string(argc, argv, 1)).c_str());
-    }
-    string s;
-    if (argc == 2) {
-        try
-        {
-            // argv -> string
-            // hex -> encoded -> decoded string
-            s = d(hex2str(argv[1]));
+
+    if (argc >= 3) {
+        const string params = string(argv2string(argc, argv, 2));
+        //cout << params << endl;
+        string line;
+        if (params == "-") {
+            std::getline(std::cin, line);
+        } else {
+            line = params;
         }
-        catch(const std::exception& e)
-        {
-            //std::cerr << e.what() << std::endl;
-            return system((string(distraction_program) + " " + argv2string(argc, argv, 1)).c_str());
+
+        if (string(argv[1]) == "-e") {
+            cout << str2hex(d(line)) << endl;
         }
-    }
-#pragma endregion
+        else if (string(argv[1]) == "-d") {
+            cout << d(hex2str(line)) << endl;
+        }
  
- 	// ...
+    }
 
 }
