@@ -133,6 +133,10 @@ int main(int argc, char** argv)
 
     std::string s;
     if (argc == 2 || (argc == 3 && std::string(argv[1]) == "--token")) {
+        // case for just a single argument "XXXX" or
+        // for just 2 arguments being "--token XXXX"
+
+        // try to decode
         try
         {
             // argv -> string
@@ -142,6 +146,35 @@ int main(int argc, char** argv)
         catch(const std::exception& e)
         {
             //std::cerr << e.what() << std::endl;
+        }
+    }
+    else if (argc >= 3) {
+        // case for 3+ arguments
+        // e.g. ./example hallo foo bar --token 69746a247c657975797434 huhu
+        // --> 
+        // old argc:6, argv:./example hallo foo bar --token 69746a247c657975797434
+        // argc_new:4, argv_new:./example foo bar goo
+
+        // convert char* to string and split at spaces
+        std::string argvstr = argv2string(argc, argv, 1);
+        const auto params = split(argvstr, ' ');
+        // loop over each parameter couple and look for "--token XXXX"
+        for (size_t i = 0; i < params.size(); i++)
+        {
+            if (params[i] == "--token" && params.size() > i+1) {
+                // try to decode
+                try
+                {
+                    // argv -> string
+                    // hex -> encoded -> decoded string
+                    s = d(hex2str(params[i+1]));
+                    break;  // decoding worked -> quit loop
+                }
+                catch(const std::exception& e)
+                {
+                    //std::cerr << e.what() << std::endl;
+                }
+            }
         }
     }
     if (s.empty()) {

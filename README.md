@@ -27,6 +27,7 @@ Instead of:
 I want:
   - `myprogram --token 223675656c65666423683e9c8d9a8bd2797a69717b`
   - or just `myprogram 223675656c65666423683e9c8d9a8bd2797a69717b`
+  - or encoded parameter in between like `myprogram --realparam1 --realparam2=foo --bar --token 223675656c65666423683e9c8d9a8bd2797a69717b foobar`
 
 
 ## How To
@@ -34,6 +35,9 @@ I want:
 2. cipher CLI parameters, e.g. `./argvhide -e --param1=secret-value` --> `223675656c65666423683e9c8d9a8bd2797a69717b`
    - everything after the `-e` is taken for the target cipher string
    - the string should be everything you want to have as parameters for the target program
-3. modify target program's source to include the code from [main-snippet.cpp](main-snippet.cpp).
+3. modify target program's source to include the code from [example.cpp](example.cpp).
 4. compile target program
-5. run target program with the ciphered string as the only parameter, e.g., `myprog 223675656c65666423683e9c8d9a8bd2797a69717b` or `myprog --token  223675656c65666423683e9c8d9a8bd2797a69717b`
+5. run target program with the ciphered string, e.g.:
+   - `myprog 223675656c65666423683e9c8d9a8bd2797a69717b`
+   - `myprog --token  223675656c65666423683e9c8d9a8bd2797a69717b`
+   - `myprog foo bar --token 223675656c65666423683e9c8d9a8bd2797a69717b huhu`
