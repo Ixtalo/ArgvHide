@@ -41,3 +41,8 @@ I want:
    - `myprog 223675656c65666423683e9c8d9a8bd2797a69717b`
    - `myprog --token  223675656c65666423683e9c8d9a8bd2797a69717b`
    - `myprog foo bar --token 223675656c65666423683e9c8d9a8bd2797a69717b huhu`
+
+
+## License
+Copyright (C) 2020 by Ixtalo.  
+AGPL3 license.
